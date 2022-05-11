@@ -39,6 +39,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shrine/util/size.dart';
+import 'create.dart';
+import 'detail.dart';
 import 'login.dart';
 import 'model/products_repository.dart';
 import 'model/product.dart';
@@ -65,7 +67,9 @@ class HomePage extends StatelessWidget {
         '/': (context) => const buildScaffold(),
         // When navigating to the "/second" route, build the SecondScreen widget.
         '/home': (context) => const buildScaffold(),
-        '/logout': (context) => const LoginPage(),
+        '/create': (context) => const CreatePage(),
+        '/detail': (context) => const DatailPage(),
+        '/logout': (context) => const buildScaffold(),
       },
     );
   }
@@ -85,7 +89,7 @@ class _buildScaffoldState extends State<buildScaffold> {
 
   static const String _url = 'https://www.handong.edu/';
   final isSelected = <bool>[true, false];
-  var _favoriteSaved = Set<int>();
+  //var _favoriteSaved = Set<int>();
 
   // void _launchURL() async {
   //   if(!await launch(_url)) throw 'Could not launch $_url';
@@ -94,14 +98,21 @@ class _buildScaffoldState extends State<buildScaffold> {
   @override
   Widget build(context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         leading: Icon(Icons.account_circle),
         title: Center(child: Text('Main')),
         actions: [
-          Icon(Icons.add),
-          SizedBox(width: 15,)
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: (){
+              Navigator.pushNamed(context, '/create');
+            },
+          ),
+          SizedBox(
+            width: 15,
+          )
         ],
-          backgroundColor: Color(0xFF9E9E9E),
+        backgroundColor: Color(0xFF9E9E9E),
       ),
       body: ListView(
         children: [
@@ -146,7 +157,8 @@ class _buildScaffoldState extends State<buildScaffold> {
                                       Container(
                                         width: 20,
                                         height: 22,
-                                        margin: EdgeInsets.symmetric(vertical: 5),
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 5),
                                         alignment: Alignment.center,
                                         child: Checkbox(
                                             value: _isChecked[i],
@@ -181,260 +193,13 @@ class _buildScaffoldState extends State<buildScaffold> {
             ),
           ),
           SizedBox(
-            height: getScreenHeight(context) * 0.05,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ToggleButtons(
-                    color: Colors.black.withOpacity(0.60),
-                    selectedColor: const Color(0xFF6200EE),
-                    selectedBorderColor: const Color(0xFF6200EE),
-                    fillColor: const Color(0xFF6200EE).withOpacity(0.08),
-                    splashColor: const Color(0xFF6200EE).withOpacity(0.12),
-                    hoverColor: const Color(0xFF6200EE).withOpacity(0.04),
-                    borderRadius: BorderRadius.circular(4.0),
-                    isSelected: isSelected,
-                    onPressed: (index) {
-                      // Respond to button selection
-                      setState(() {
-                        isSelected[0] = !isSelected[0];
-                        isSelected[1] = !isSelected[1];
-                      });
-                    },
-                    children: const [
-                      Icon(Icons.list),
-                      Icon(Icons.grid_view),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
             height: getScreenHeight(context) * 0.8,
-            child: OrientationBuilder(
-              builder: (context, orientation) {
-                return ProductInfo();
-                //   GridView.count(
-                //   crossAxisCount:
-                //   orientation == Orientation.portrait ? 2 : 3,
-                //   padding: const EdgeInsets.all(16.0),
-                //   childAspectRatio: 8.0 / 10.0,
-                //   children: _buildGridCards(context),
-                // );
-              },
-            ),
+            child: ProductInfo(),
           ),
         ],
       ),
     );
   }
-
-  // GridView _buildGridView(context){
-  //   return GridView.builder(
-  //       gridDelegate: ,
-  //       itemBuilder: )
-  // }
-//
-  // Widget _buildGridCards(context) {
-  //   bool _alreadySaved;
-  //
-  //   // if (products.isEmpty) {
-  //   //   return const <Card>[];
-  //   // }
-  //
-  //   return products.map((product) {
-  //     _alreadySaved = _favoriteSaved.contains(product.id);
-  //     return Card(
-  //       clipBehavior: Clip.antiAlias,
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: <Widget>[
-  //           AspectRatio(
-  //             aspectRatio: 18 / 12,
-  //             child: Image.asset(
-  //               product.assetName,
-  //               package: product.assetPackage,
-  //               fit: BoxFit.fitWidth,
-  //             ),
-  //           ),
-  //           Expanded(
-  //             child: Padding(
-  //               padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0),
-  //               child: Column(
-  //                 mainAxisAlignment: MainAxisAlignment.start,
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: <Widget>[
-  //                   StarWidget(reputation_count: product.requtation),
-  //                   Text(
-  //                     product.name,
-  //                     style: TextStyle(fontSize: 15),
-  //                     maxLines: 1,
-  //                   ),
-  //                   Expanded(
-  //                     child: Row(
-  //                       children: [
-  //                         Icon(
-  //                           Icons.location_on_sharp,
-  //                           color: Colors.lightBlue,
-  //                           size: 20,
-  //                         ),
-  //                         Expanded(
-  //                           child: Text(
-  //                             product.location,
-  //                             style: TextStyle(fontSize: 8),
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.end,
-  //                     crossAxisAlignment: CrossAxisAlignment.end,
-  //                     children: [
-  //                       TextButton(
-  //                         child: Text(
-  //                           "more",
-  //                           style: TextStyle(
-  //                               color: Colors.lightBlue,
-  //                               fontSize: 10,
-  //                               fontWeight: FontWeight.bold),
-  //                         ),
-  //                         onPressed: () {
-  //                           Navigator.of(context).push(MaterialPageRoute<void>(
-  //                               builder: (BuildContext context) {
-  //
-  //                                 return Scaffold(
-  //                                   appBar: AppBar(
-  //                                     title: const Text('Detail'),
-  //                                   ),
-  //                                   body: ListView(
-  //                                     children: [
-  //                                       Stack(
-  //                                         children: [
-  //                                           AspectRatio(
-  //                                             aspectRatio: 18 / 12,
-  //                                             child: Hero(
-  //                                               tag: "imageHero",
-  //                                               child: Image.asset(
-  //                                                 product.assetName,
-  //                                                 package: product.assetPackage,
-  //                                                 fit: BoxFit.fitWidth,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                           Positioned(
-  //                                             right: 10,
-  //                                             child: IconButton(
-  //                                               onPressed: () {
-  //                                                 setState(() {
-  //                                                   if (_alreadySaved) {
-  //                                                     _favoriteSaved.remove(product.id);
-  //                                                     print("cancel");
-  //                                                     print(_favoriteSaved.length);
-  //                                                   } else {
-  //                                                     _favoriteSaved.add(product.id);
-  //                                                     print("love");
-  //                                                     print(_favoriteSaved.length);
-  //                                                   }
-  //                                                   _alreadySaved = !_alreadySaved;
-  //                                                 });
-  //                                               },
-  //                                               icon: _alreadySaved? Icon(Icons.favorite_border, color: Colors.red,) :
-  //                                               Icon(Icons.favorite, color: Colors.red),
-  //                                             ),
-  //                                           ),
-  //                                         ],
-  //                                       ),
-  //                                       Padding(
-  //                                         padding: const EdgeInsets.symmetric(horizontal:20.0, vertical: 10.0),
-  //                                         child: Column(
-  //                                           crossAxisAlignment: CrossAxisAlignment.start,
-  //                                           children: [
-  //                                             StarWidget(reputation_count: product.requtation),
-  //                                             SizedBox(height: 15,),
-  //                                             // AnimatedTextKit(
-  //                                             //   animatedTexts: [
-  //                                             //     TypewriterAnimatedText(
-  //                                             //       product.name,
-  //                                             //       textStyle: const TextStyle(
-  //                                             //         fontSize: 32.0,
-  //                                             //         fontWeight: FontWeight.bold,
-  //                                             //       ),
-  //                                             //       speed: const Duration(milliseconds: 400),
-  //                                             //     ),
-  //                                             //   ],
-  //                                             //   totalRepeatCount: 4,
-  //                                             //   pause: const Duration(milliseconds: 1000),
-  //                                             //   displayFullTextOnTap: true,
-  //                                             //   stopPauseOnTap: true,
-  //                                             // ),
-  //                                             SizedBox(height: 15,),
-  //                                             Row(
-  //                                               children: [
-  //                                                 Icon(
-  //                                                   Icons.location_on,
-  //                                                   color: Colors.lightBlue,
-  //                                                   size: 20,
-  //                                                 ),
-  //                                                 SizedBox(width: 10,),
-  //                                                 Expanded(
-  //                                                   child: Text(
-  //                                                     product.location,
-  //                                                     style: TextStyle(fontSize: 15),
-  //                                                   ),
-  //                                                 ),
-  //                                               ],
-  //                                             ),
-  //                                             SizedBox(height: 10,),
-  //                                             Row(
-  //                                               children: [
-  //                                                 Icon(
-  //                                                   Icons.phone,
-  //                                                   color: Colors.lightBlue,
-  //                                                   size: 20,
-  //                                                 ),
-  //                                                 SizedBox(width: 10,),
-  //                                                 Expanded(
-  //                                                   child: Text(
-  //                                                     product.telephone,
-  //                                                     style: TextStyle(fontSize: 15),
-  //                                                   ),
-  //                                                 ),
-  //                                               ],
-  //                                             ),
-  //                                             Divider(thickness: 2,),
-  //                                             Padding(
-  //                                               padding: const EdgeInsets.all(8.0),
-  //                                               child: Expanded(
-  //                                                 child: Text(
-  //                                                   product.description,
-  //                                                   style: TextStyle(fontSize: 15),
-  //                                                 ),
-  //                                               ),
-  //                                             ),
-  //                                           ],
-  //                                         ),
-  //                                       ),
-  //                                     ],
-  //                                   ),
-  //                                 );
-  //                               }));
-  //                         },
-  //                       )
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }).toList();
-  // }
 }
 
 class ProductInfo extends StatefulWidget {
@@ -443,7 +208,8 @@ class ProductInfo extends StatefulWidget {
 }
 
 class _ProductInfoState extends State<ProductInfo> {
-  final Stream<QuerySnapshot> _productsStream = FirebaseFirestore.instance.collection('Product').snapshots();
+  final Stream<QuerySnapshot> _productsStream =
+      FirebaseFirestore.instance.collection('product').snapshots();
 
   @override
   Widget build(BuildContext context) {
@@ -457,13 +223,46 @@ class _ProductInfoState extends State<ProductInfo> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text("Loading");
         }
-
-        return ListView(
+        return GridView(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2),
           children: snapshot.data!.docs.map((DocumentSnapshot document) {
-            Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-            return ListTile(
-              title: Text(data['Name']),
-              subtitle: Text(data['Price']),
+            Map<String, dynamic> data =
+                document.data()! as Map<String, dynamic>;
+            return Column(
+              children: [
+                Expanded(child: Image.asset("assets/images/1-0.PNG", fit: BoxFit.fitWidth)),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(data['name']),
+                      subtitle: Text(data['price'] + "원"),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: (){
+                            Navigator.pushNamed(context, '/detail');
+                          },
+                          child: Text(
+                            "more",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.resolveWith((color) => Colors.white),
+                            elevation: MaterialStateProperty.resolveWith((elevation) => 0.0),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                ),
+              ],
             );
           }).toList(),
         );
@@ -472,21 +271,26 @@ class _ProductInfoState extends State<ProductInfo> {
   }
 }
 
-
 //for delievering arguments through navigator but it does not work in that Page....
 class favoriteNum_to_name {
-  favoriteNum_to_name(this.favorite_Number, this.products,);
+  favoriteNum_to_name(
+    this.favorite_Number,
+    this.products,
+  );
 
   final Set<int> favorite_Number;
   final List<Product> products;
-  List<String> favorite_name = ["",];
+  List<String> favorite_name = [
+    "",
+  ];
 
-  List<String> convert_numToName (){
-    favorite_name = ["",];
-    for(int i=0; i<favorite_Number.length; i++){
+  List<String> convert_numToName() {
+    favorite_name = [
+      "",
+    ];
+    for (int i = 0; i < favorite_Number.length; i++) {
       favorite_name[i] = products[favorite_Number.elementAt(i)].name;
     }
     return favorite_name;
   }
-
 }
