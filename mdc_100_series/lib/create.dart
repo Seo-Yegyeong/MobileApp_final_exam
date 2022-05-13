@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shrine/util/size.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'model/product.dart';
 
 class CreatePage extends StatefulWidget {
   const CreatePage({Key? key}) : super(key: key);
@@ -15,6 +18,52 @@ class _CreatePageState extends State<CreatePage> {
 
     File? _image;
     final picker = ImagePicker();
+
+    final myFormKey = GlobalKey<FormState>();
+    //아래는 참고링크야!
+    //https://api.flutter.dev/flutter/widgets/TextEditingController-class.html
+    final TextEditingController nameCont = TextEditingController();
+    final TextEditingController priceCont = TextEditingController();
+    final TextEditingController descCont = TextEditingController();
+
+    @override
+    void initState() {
+      super.initState();
+      nameCont.addListener(() {
+        final String text = nameCont.text;
+        nameCont.value = nameCont.value.copyWith(
+          text: text,
+          selection:
+          TextSelection(baseOffset: text.length, extentOffset: text.length),
+          composing: TextRange.empty,
+        );
+      });
+      priceCont.addListener(() {
+        final String text = priceCont.text;
+        priceCont.value = priceCont.value.copyWith(
+          text: text,
+          selection:
+          TextSelection(baseOffset: text.length, extentOffset: text.length),
+          composing: TextRange.empty,
+        );
+      });
+      descCont.addListener(() {
+        final String text = descCont.text;
+        descCont.value = descCont.value.copyWith(
+          text: text,
+          selection:
+          TextSelection(baseOffset: text.length, extentOffset: text.length),
+          composing: TextRange.empty,
+        );
+      });
+    }
+
+    @override
+    void dispose() {
+      nameCont.dispose();
+      super.dispose();
+    }
+
 
     // 비동기 처리를 통해 카메라와 갤러리에서 이미지를 가져온다.
     Future getImage(ImageSource imageSource) async {
@@ -37,8 +86,7 @@ class _CreatePageState extends State<CreatePage> {
                   : Image.file(File(_image!.path))));
     }
 
-    final myFormKey = GlobalKey<FormState>();
-    @override
+        @override
     Widget build(BuildContext context) {
 
       SystemChrome.setPreferredOrientations(
@@ -59,7 +107,26 @@ class _CreatePageState extends State<CreatePage> {
           title: Center(child: Text('Add')),
           actions: [
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                //아래는 참고링크야.
+                //https://web.archive.org/web/20220213102213/https://firebase.flutter.dev/docs/firestore/usage/
+                if(myFormKey.currentState!.validate()){
+                  final productsRef = FirebaseFirestore.instance.collection('product').withConverter<Product>(
+                    fromFirestore: (snapshot, _) => Product.fromJson(snapshot.data()!),
+                    toFirestore: (product, _) => product.toJson(),
+                  );
+
+                  List<QueryDocumentSnapshot<Product>> products = await productsRef.get().then((snapshot) => snapshot.docs);
+
+                  await productsRef.add(
+                    Product(
+                      name: nameCont.text,
+                      price: priceCont.text,
+                      description: descCont.text,
+                    )
+                  );
+                }
+              },
               child: Text("Save"),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.resolveWith((color) => Color(0xFF9E9E9E)),
@@ -72,70 +139,106 @@ class _CreatePageState extends State<CreatePage> {
           ],
           backgroundColor: Color(0xFF9E9E9E),
         ),
-        body: Column(
-          children: [
-            Container(
-              // height: getScreenHeight(context)*0.4,
-              // width: getScreenWidth(context),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: ListView(
+            children: [
+              Column(
                 children: [
-                  showImage(),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      // 카메라 촬영 버튼
-                      // FloatingActionButton(
-                      //   child: Icon(Icons.add_a_photo),
-                      //   tooltip: 'pick Image',
-                      //   onPressed: () {
-                      //     getImage(ImageSource.camera);
-                      //   },
-                      // ),
-                      // SizedBox(width: 20,),
-                      // 갤러리에서 이미지를 가져오는 버튼
-                      // FloatingActionButton(
-                      //   child: Icon(Icons.wallpaper),
-                      //   tooltip: 'pick Image',
-                      //   onPressed: () {
-                      //     getImage(ImageSource.gallery);
-                      //   },
-                      // ),
-                      OutlinedButton(
-                        child: Icon(Icons.camera_alt, color: Colors.black,),
-                        onPressed: () {
-                          getImage(ImageSource.gallery);
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.resolveWith((backgroundColor) => Colors.white),
-                          elevation: MaterialStateProperty.resolveWith((elevation) => 0.0),
+                  Container(
+                    // height: getScreenHeight(context)*0.4,
+                    // width: getScreenWidth(context),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        showImage(),
+                        SizedBox(
+                          height: 20.0,
                         ),
-                      ),
-                      SizedBox(width: 20,),
-                    ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            // 카메라 촬영 버튼
+                            // FloatingActionButton(
+                            //   child: Icon(Icons.add_a_photo),
+                            //   tooltip: 'pick Image',
+                            //   onPressed: () {
+                            //     getImage(ImageSource.camera);
+                            //   },
+                            // ),
+                            // SizedBox(width: 20,),
+                            // 갤러리에서 이미지를 가져오는 버튼
+                            // FloatingActionButton(
+                            //   child: Icon(Icons.wallpaper),
+                            //   tooltip: 'pick Image',
+                            //   onPressed: () {
+                            //     getImage(ImageSource.gallery);
+                            //   },
+                            // ),
+                            OutlinedButton(
+                              child: Icon(Icons.camera_alt, color: Colors.black,),
+                              onPressed: () {
+                                getImage(ImageSource.gallery);
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.resolveWith((backgroundColor) => Colors.white),
+                                elevation: MaterialStateProperty.resolveWith((elevation) => 0.0),
+                              ),
+                            ),
+                            SizedBox(width: 20,),
+                          ],
+                        ),
+                        SizedBox(height: 20,),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 20,),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                    child: Form(
+                      key: myFormKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            //initialValue: "Product Name",
+                            controller: nameCont,
+                            validator: (value){
+                              if(value!.isEmpty)
+                                return "enter the product name!";
+                              else
+                                return null;
+                            },
+                          ),
+                          TextFormField(
+                            //initialValue: "Price",
+                            controller: priceCont,
+                            validator: (value){
+                              if(value!.isEmpty)
+                                return "enter the price!";
+                              else
+                                return null;
+                            },
+                          ),
+                          TextFormField(
+                            //initialValue: "Description",
+                            controller: descCont,
+                            validator: (value){
+                              if(value!.isEmpty)
+                                return "enter some description!";
+                              else
+                                return null;
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-              child: Form(
-                key: myFormKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Product Name"),
-                    Text("Price"),
-                    Text("Description"),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }

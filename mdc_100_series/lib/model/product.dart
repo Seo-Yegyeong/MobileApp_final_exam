@@ -12,31 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-enum Category {
-  all,
-  accessories,
-  clothing,
-  home,
-}
-
 class Product {
   const Product({
-    required this.category,
-    required this.id,
-    required this.isFeatured,
     required this.name,
     required this.price,
+    required this.description,
   });
 
-  final Category category;
-  final int id;
-  final bool isFeatured;
   final String name;
-  final int price;
+  final String price;
+  final String description;
 
-  String get assetName => '$id-0.jpg';
-  String get assetPackage => 'shrine_images';
+  Product.fromJson(Map<String, Object?> json)
+  : this(
+    name: json['name']! as String,
+    price: json['price']! as String,
+    description: json['description']! as String,
+  );
 
-  @override
-  String toString() => "$name (id=$id)";
+  Map<String, Object?> toJson(){
+    return{
+      'name' : name,
+      'price' : price,
+      'description' : description,
+    };
+  }
 }

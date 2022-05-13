@@ -41,8 +41,6 @@ import 'package:flutter/material.dart';
 import 'package:shrine/util/size.dart';
 import 'create.dart';
 import 'detail.dart';
-import 'login.dart';
-import 'model/products_repository.dart';
 import 'model/product.dart';
 
 class HomePage extends StatelessWidget {
