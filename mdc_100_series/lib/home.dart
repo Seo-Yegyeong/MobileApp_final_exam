@@ -50,20 +50,9 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Named Routes Demo',
-      // Start the app with the "/" named route. In this case, the app starts
-      // on the FirstScreen widget.
-      //onGenerateInitialRoutes: '/',
-      // onGenerateRoute: (settings){
-      //   if(settings.name == '/detail'){
-      //     final Product p = settings.arguments;
-      //   }
-      // },
-
       initialRoute: '/',
       routes: {
-        // When navigating to the "/" route, build the FirstScreen widget.
         '/': (context) => const buildScaffold(),
-        // When navigating to the "/second" route, build the SecondScreen widget.
         '/home': (context) => const buildScaffold(),
         '/create': (context) => const CreatePage(),
         '/detail': (context) => const DatailPage(),
@@ -81,11 +70,11 @@ class buildScaffold extends StatefulWidget {
 }
 
 class _buildScaffoldState extends State<buildScaffold> {
-  List<String> _item = ["ASC", "DESC"];
+  final List<String> _item = ["ASC", "DESC"];
   bool _expanded = false;
-  List<bool> _isChecked = [false, false];
+  final List<bool> _isChecked = [false, false];
 
-  static const String _url = 'https://www.handong.edu/';
+  //static const String _url = 'https://www.handong.edu/';
   final isSelected = <bool>[true, false];
   //var _favoriteSaved = Set<int>();
 
@@ -97,115 +86,126 @@ class _buildScaffoldState extends State<buildScaffold> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.account_circle),
-        title: Center(child: Text('Main')),
+        leading: const Icon(Icons.account_circle),
+        title: Center(child: const Text('Main')),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: (){
               Navigator.pushNamed(context, '/create');
             },
           ),
-          SizedBox(
+          const SizedBox(
             width: 15,
           )
         ],
-        backgroundColor: Color(0xFF9E9E9E),
+        backgroundColor: const Color(0xFF9E9E9E),
       ),
-      body: ListView(
-        children: [
-          const SizedBox(
-            height: 10,
-          ),
-          Flexible(
-            child: Column(
-              children: [
-                SingleChildScrollView(
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    child: ExpansionPanelList(
-                      animationDuration: Duration(milliseconds: 500),
-                      children: [
-                        ExpansionPanel(
-                          headerBuilder: (context, isExpanded) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Text(
-                                  "select filters",
-                                  style: TextStyle(fontSize: 16),
-                                )
-                              ],
-                            );
-                          },
-                          body: Column(
-                            children: [
-                              for (var i = 0; i < _item.length; i++)
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: getScreenWidth(context) * 0.28,
-                                      ),
-                                      Container(
-                                        width: 20,
-                                        height: 22,
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 5),
-                                        alignment: Alignment.center,
-                                        child: Checkbox(
-                                            value: _isChecked[i],
-                                            onChanged: (value) {
-                                              setState(() {
-                                                _isChecked[i] = value!;
-                                              });
-                                            }),
-                                      ),
-                                      SizedBox(
-                                        width: 20,
-                                      ),
-                                      Expanded(child: Text(_item[i])),
-                                    ],
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: ListView(
+          children: [
+            const SizedBox(
+              height: 10,
+            ),
+            Flexible(
+              child: Column(
+                children: [
+                  SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      child: ExpansionPanelList(
+                        animationDuration: const Duration(milliseconds: 500),
+                        children: [
+                          ExpansionPanel(
+                            headerBuilder: (context, isExpanded) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  SizedBox(
+                                    width: 20,
                                   ),
-                                )
-                            ],
+                                  Text(
+                                    "select filters",
+                                    style: TextStyle(fontSize: 16),
+                                  )
+                                ],
+                              );
+                            },
+                            body: Column(
+                              children: [
+                                for (var i = 0; i < _item.length; i++)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: getScreenWidth(context) * 0.28,
+                                        ),
+                                        Container(
+                                          width: 20,
+                                          height: 22,
+                                          margin:
+                                              const EdgeInsets.symmetric(vertical: 5),
+                                          alignment: Alignment.center,
+                                          child: Checkbox(
+                                              value: _isChecked[i],
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  _isChecked[i] = value!;
+                                                });
+                                              }),
+                                        ),
+                                        const SizedBox(
+                                          width: 20,
+                                        ),
+                                        Expanded(child: Text(_item[i])),
+                                      ],
+                                    ),
+                                  )
+                              ],
+                            ),
+                            isExpanded: _expanded,
+                            canTapOnHeader: true,
                           ),
-                          isExpanded: _expanded,
-                          canTapOnHeader: true,
-                        ),
-                      ],
-                      expandedHeaderPadding: EdgeInsets.all(0),
-                      expansionCallback: (panelIndex, isExpanded) {
-                        _expanded = !_expanded;
-                        setState(() {});
-                      },
+                        ],
+                        expandedHeaderPadding: const EdgeInsets.all(0),
+                        expansionCallback: (panelIndex, isExpanded) {
+                          _expanded = !_expanded;
+                          setState(() {});
+                        },
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+            SizedBox(
+              height: getScreenHeight(context) * 0.8,
+              child: const ProductInfo(),
+            ),
+          ],
           ),
-          SizedBox(
-            height: getScreenHeight(context) * 0.8,
-            child: ProductInfo(),
-          ),
-        ],
-      ),
+      )
     );
   }
 }
 
 class ProductInfo extends StatefulWidget {
+  const ProductInfo({Key? key}) : super(key: key);
+
   @override
   _ProductInfoState createState() => _ProductInfoState();
 }
 
 class _ProductInfoState extends State<ProductInfo> {
+  late String name;
+  late String price;
+  late String desc;
+
   final Stream<QuerySnapshot> _productsStream =
       FirebaseFirestore.instance.collection('product').snapshots();
 
@@ -215,11 +215,11 @@ class _ProductInfoState extends State<ProductInfo> {
       stream: _productsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
-          return Text('Something went wrong');
+          return const Text('Something went wrong');
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Loading");
+          return const Text("Loading");
         }
         return GridView(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -231,7 +231,7 @@ class _ProductInfoState extends State<ProductInfo> {
               children: [
                 Expanded(child: Image.asset("assets/images/1-0.PNG", fit: BoxFit.fitWidth)),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
                     ListTile(
@@ -243,9 +243,20 @@ class _ProductInfoState extends State<ProductInfo> {
                       children: [
                         ElevatedButton(
                           onPressed: (){
-                            Navigator.pushNamed(context, '/detail');
+                            name = data['name'];
+                            price = data['price'];
+                            desc = data['description'];
+                            Navigator.pushNamed(
+                                context,
+                                '/detail',
+                                arguments: ProductArguments(
+                                    "$name",
+                                    "$price",
+                                    "$desc"
+                                ),
+                            );
                           },
-                          child: Text(
+                          child: const Text(
                             "more",
                             style: TextStyle(color: Colors.blue),
                           ),
@@ -268,6 +279,15 @@ class _ProductInfoState extends State<ProductInfo> {
     );
   }
 }
+
+class ProductArguments {
+  final String name;
+  final String price;
+  final String description;
+
+  ProductArguments(this.name, this.price, this.description);
+}
+
 
 //for delievering arguments through navigator but it does not work in that Page....
 class favoriteNum_to_name {

@@ -116,7 +116,7 @@ class _CreatePageState extends State<CreatePage> {
                     toFirestore: (product, _) => product.toJson(),
                   );
 
-                  List<QueryDocumentSnapshot<Product>> products = await productsRef.get().then((snapshot) => snapshot.docs);
+                  //List<QueryDocumentSnapshot<Product>> products = await productsRef.get().then((snapshot) => snapshot.docs);
 
                   await productsRef.add(
                     Product(
@@ -125,6 +125,8 @@ class _CreatePageState extends State<CreatePage> {
                       description: descCont.text,
                     )
                   );
+
+                  Navigator.pop(context);
                 }
               },
               child: Text("Save"),
