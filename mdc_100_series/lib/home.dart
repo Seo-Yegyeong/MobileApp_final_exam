@@ -41,6 +41,7 @@ import 'package:flutter/material.dart';
 import 'package:shrine/util/size.dart';
 import 'create.dart';
 import 'detail.dart';
+import 'edit.dart';
 import 'model/product.dart';
 
 class HomePage extends StatelessWidget {
@@ -57,6 +58,7 @@ class HomePage extends StatelessWidget {
         '/create': (context) => const CreatePage(),
         '/detail': (context) => const DatailPage(),
         '/logout': (context) => const buildScaffold(),
+        '/edit': (context) => const EditPage(),
       },
     );
   }

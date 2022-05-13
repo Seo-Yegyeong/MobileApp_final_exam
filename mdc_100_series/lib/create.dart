@@ -205,6 +205,9 @@ class _CreatePageState extends State<CreatePage> {
                         children: [
                           TextFormField(
                             //initialValue: "Product Name",
+                            decoration: InputDecoration(
+                              hintText: "Product Name"
+                            ),
                             controller: nameCont,
                             validator: (value){
                               if(value!.isEmpty)
@@ -215,6 +218,9 @@ class _CreatePageState extends State<CreatePage> {
                           ),
                           TextFormField(
                             //initialValue: "Price",
+                            decoration: InputDecoration(
+                                hintText: "Price"
+                            ),
                             controller: priceCont,
                             validator: (value){
                               if(value!.isEmpty)
@@ -225,6 +231,9 @@ class _CreatePageState extends State<CreatePage> {
                           ),
                           TextFormField(
                             //initialValue: "Description",
+                            decoration: InputDecoration(
+                                hintText: "Description"
+                            ),
                             controller: descCont,
                             validator: (value){
                               if(value!.isEmpty)
