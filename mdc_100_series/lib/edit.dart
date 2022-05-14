@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shrine/util/size.dart';
 import 'dart:io';
@@ -16,52 +17,7 @@ class _EditPageState extends State<EditPage> {
 
   File? _image;
   final picker = ImagePicker();
-
   final myFormKey = GlobalKey<FormState>();
-  //아래는 참고링크야!
-  //https://api.flutter.dev/flutter/widgets/TextEditingController-class.html
-  final TextEditingController nameCont = TextEditingController();
-  final TextEditingController priceCont = TextEditingController();
-  final TextEditingController descCont = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    nameCont.addListener(() {
-      final String text = nameCont.text;
-      nameCont.value = nameCont.value.copyWith(
-        text: text,
-        selection:
-        TextSelection(baseOffset: text.length, extentOffset: text.length),
-        composing: TextRange.empty,
-      );
-    });
-    priceCont.addListener(() {
-      final String text = priceCont.text;
-      priceCont.value = priceCont.value.copyWith(
-        text: text,
-        selection:
-        TextSelection(baseOffset: text.length, extentOffset: text.length),
-        composing: TextRange.empty,
-      );
-    });
-    descCont.addListener(() {
-      final String text = descCont.text;
-      descCont.value = descCont.value.copyWith(
-        text: text,
-        selection:
-        TextSelection(baseOffset: text.length, extentOffset: text.length),
-        composing: TextRange.empty,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    nameCont.dispose();
-    super.dispose();
-  }
-
 
   // 비동기 처리를 통해 카메라와 갤러리에서 이미지를 가져온다.
   Future getImage(ImageSource imageSource) async {
@@ -87,6 +43,9 @@ class _EditPageState extends State<EditPage> {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as ProductArguments;
+    final TextEditingController nameCont = TextEditingController(text: args.name);
+    final TextEditingController priceCont = TextEditingController(text: args.price);
+    final TextEditingController descCont = TextEditingController(text: args.description);
 
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
@@ -107,24 +66,61 @@ class _EditPageState extends State<EditPage> {
         actions: [
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
+              nameCont.dispose();
+              priceCont.dispose();
+              descCont.dispose();
+              super.dispose();
 
-              // if(myFormKey.currentState!.validate()){
-              //   final productsRef = FirebaseFirestore.instance.collection('product').withConverter<Product>(
-              //     fromFirestore: (snapshot, _) => Product.fromJson(snapshot.data()!),
-              //     toFirestore: (product, _) => product.toJson(),
-              //   );
-              //
-              //   await productsRef.add(
-              //       Product(
-              //         name: nameCont.text,
-              //         price: priceCont.text,
-              //         description: descCont.text,
-              //       )
-              //   );
-              //
-              //   Navigator.pop(context);
-              // }
+              if(myFormKey.currentState!.validate()){
+                DocumentReference product = FirebaseFirestore.instance.collection('product').doc(args.name);
+                product.update(
+                  {
+                    'name': nameCont.text,
+                    'price': priceCont.text,
+                    'description': descCont.text,
+                  }
+                );
+                // String searchName = args.name;
+                // FirebaseFirestore firestore = FirebaseFirestore.instance.collection('product').where('name', searchName).get().then(
+                //
+                // ) as FirebaseFirestore;
+
+                // CollectionRefernamence products = FirebaseFirestore.instance.collection('product').where('name', isEqualTo: args.name) as QuerySnapshot<Object?>;
+                // var product = products.where('name', isEqualTo: args.name);
+                //
+                // FirebaseFirestore.instance.collection('product').get()
+                //     .then((querySnapshot){
+                //  querySnapshot.docs.forEach((doc){
+                //    if(doc.get('name') == args.name)
+                //
+                //  });
+                // }
+                // );
+
+                // FirebaseFirestore.instance.collection('product').where("name", isEqualTo: args.name)
+                // .get().then((v){
+                //   v.docs.forEach((product) {
+                //     if(product.get('name') == args.name)
+                //       product.data().update('name', (value) => null)
+                //   });
+                // });
+
+
+                // final productsRef = FirebaseFirestore.instance.collection('product').withConverter<Product>(
+                //   fromFirestore: (snapshot, _) => Product.fromJson(snapshot.data()!),
+                //   toFirestore: (product, _) => product.toJson(),
+                // );
+                //
+                // await productsRef.add(
+                //     Product(
+                //       name: nameCont.text,
+                //       price: priceCont.text,
+                //       description: descCont.text,
+                //     )
+                // );
+
+                Navigator.pop(context);
+              }
             },
             child: Text("Save"),
             style: ButtonStyle(
@@ -157,23 +153,6 @@ class _EditPageState extends State<EditPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
-                          // 카메라 촬영 버튼
-                          // FloatingActionButton(
-                          //   child: Icon(Icons.add_a_photo),
-                          //   tooltip: 'pick Image',
-                          //   onPressed: () {
-                          //     getImage(ImageSource.camera);
-                          //   },
-                          // ),
-                          // SizedBox(width: 20,),
-                          // 갤러리에서 이미지를 가져오는 버튼
-                          // FloatingActionButton(
-                          //   child: Icon(Icons.wallpaper),
-                          //   tooltip: 'pick Image',
-                          //   onPressed: () {
-                          //     getImage(ImageSource.gallery);
-                          //   },
-                          // ),
                           OutlinedButton(
                             child: Icon(Icons.camera_alt, color: Colors.black,),
                             onPressed: () {
@@ -199,8 +178,7 @@ class _EditPageState extends State<EditPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextFormField(
-                          initialValue: args.name,
-                          //controller: nameCont,
+                          controller: nameCont,
                           validator: (value){
                             if(value!.isEmpty)
                               return "enter the product name!";
@@ -209,8 +187,7 @@ class _EditPageState extends State<EditPage> {
                           },
                         ),
                         TextFormField(
-                          initialValue: args.price,
-                          //controller: priceCont,
+                          controller: priceCont,
                           validator: (value){
                             if(value!.isEmpty)
                               return "enter the price!";
@@ -219,8 +196,7 @@ class _EditPageState extends State<EditPage> {
                           },
                         ),
                         TextFormField(
-                          initialValue: args.description,
-                          //controller: descCont,
+                          controller: descCont,
                           validator: (value){
                             if(value!.isEmpty)
                               return "enter some description!";

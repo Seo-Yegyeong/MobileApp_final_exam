@@ -38,6 +38,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shrine/profile.dart';
 import 'package:shrine/util/size.dart';
 import 'create.dart';
 import 'detail.dart';
@@ -59,6 +60,7 @@ class HomePage extends StatelessWidget {
         '/detail': (context) => const DatailPage(),
         '/logout': (context) => const buildScaffold(),
         '/edit': (context) => const EditPage(),
+        '/profile': (context) => const ProfilePage(),
       },
     );
   }
@@ -72,9 +74,9 @@ class buildScaffold extends StatefulWidget {
 }
 
 class _buildScaffoldState extends State<buildScaffold> {
-  final List<String> _item = ["ASC", "DESC"];
-  bool _expanded = false;
-  final List<bool> _isChecked = [false, false];
+  //final List<bool> _isChecked = [false, false];
+  String dropdownValue = 'Asc';
+  List<String> order = ['Asc', 'Desc'];
 
   //static const String _url = 'https://www.handong.edu/';
   final isSelected = <bool>[true, false];
@@ -87,117 +89,79 @@ class _buildScaffoldState extends State<buildScaffold> {
   @override
   Widget build(context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: const Icon(Icons.account_circle),
-        title: Center(child: const Text('Main')),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: (){
-              Navigator.pushNamed(context, '/create');
-            },
-          ),
-          const SizedBox(
-            width: 15,
-          )
-        ],
-        backgroundColor: const Color(0xFF9E9E9E),
-      ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: ListView(
-          children: [
-            const SizedBox(
-              height: 10,
+        appBar: AppBar(
+          leading: IconButton(
+              icon: Icon(Icons.account_circle),
+              onPressed: () {
+                Navigator.pushNamed(context, '/profile');
+              }),
+          title: Center(child: const Text('Main')),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.pushNamed(context, '/create');
+              },
             ),
-            Flexible(
-              child: Column(
+            const SizedBox(
+              width: 15,
+            )
+          ],
+          backgroundColor: const Color(0xFF9E9E9E),
+        ),
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: ListView(
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SingleChildScrollView(
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      child: ExpansionPanelList(
-                        animationDuration: const Duration(milliseconds: 500),
-                        children: [
-                          ExpansionPanel(
-                            headerBuilder: (context, isExpanded) {
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  SizedBox(
-                                    width: 20,
-                                  ),
-                                  Text(
-                                    "select filters",
-                                    style: TextStyle(fontSize: 16),
-                                  )
-                                ],
-                              );
-                            },
-                            body: Column(
-                              children: [
-                                for (var i = 0; i < _item.length; i++)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: getScreenWidth(context) * 0.28,
-                                        ),
-                                        Container(
-                                          width: 20,
-                                          height: 22,
-                                          margin:
-                                              const EdgeInsets.symmetric(vertical: 5),
-                                          alignment: Alignment.center,
-                                          child: Checkbox(
-                                              value: _isChecked[i],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _isChecked[i] = value!;
-                                                });
-                                              }),
-                                        ),
-                                        const SizedBox(
-                                          width: 20,
-                                        ),
-                                        Expanded(child: Text(_item[i])),
-                                      ],
-                                    ),
-                                  )
-                              ],
-                            ),
-                            isExpanded: _expanded,
-                            canTapOnHeader: true,
-                          ),
-                        ],
-                        expandedHeaderPadding: const EdgeInsets.all(0),
-                        expansionCallback: (panelIndex, isExpanded) {
-                          _expanded = !_expanded;
-                          setState(() {});
-                        },
-                      ),
+                  DropdownButton<String>(
+                    value: dropdownValue,
+                    icon: const Icon(Icons.arrow_downward),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.deepPurple),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.deepPurpleAccent,
                     ),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownValue = newValue!;
+                      });
+                    },
+                    items: order.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                        // alignment: AlignmentDirectional.centerStart
+                      );
+                    }).toList(),
+                    alignment: Alignment.center,
                   ),
                 ],
               ),
-            ),
-            SizedBox(
-              height: getScreenHeight(context) * 0.8,
-              child: const ProductInfo(),
-            ),
-          ],
+              SizedBox(
+                height: getScreenHeight(context) * 0.03,
+              ),
+              SizedBox(
+                height: getScreenHeight(context) * 0.8,
+                child: ProductInfo(order: dropdownValue,),
+              ),
+            ],
           ),
-      )
-    );
+        ));
   }
 }
 
 class ProductInfo extends StatefulWidget {
-  const ProductInfo({Key? key}) : super(key: key);
+  const ProductInfo({Key? key, required this.order}) : super(key: key);
+  final String order;
 
   @override
   _ProductInfoState createState() => _ProductInfoState();
@@ -207,12 +171,22 @@ class _ProductInfoState extends State<ProductInfo> {
   late String name;
   late String price;
   late String desc;
+  late String writer;
+  late int popular;
 
-  final Stream<QuerySnapshot> _productsStream =
-      FirebaseFirestore.instance.collection('product').snapshots();
+  bool order = false; //ascending
+  @override
+  void initState() {
+    super.initState();
+    if(widget.order.compareTo('Desc')==0)
+      order = true; //descending
+  }
 
   @override
   Widget build(BuildContext context) {
+    final Stream<QuerySnapshot> _productsStream =
+    FirebaseFirestore.instance.collection('product').orderBy('price', descending: order).snapshots();
+
     return StreamBuilder<QuerySnapshot>(
       stream: _productsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -231,47 +205,51 @@ class _ProductInfoState extends State<ProductInfo> {
                 document.data()! as Map<String, dynamic>;
             return Column(
               children: [
-                Expanded(child: Image.asset("assets/images/1-0.PNG", fit: BoxFit.fitWidth)),
+                Expanded(
+                    child: Image.asset("assets/images/1-0.PNG",
+                        fit: BoxFit.fitWidth)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Text(data['name']),
-                      subtitle: Text(data['price'] + "원"),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                          onPressed: (){
-                            name = data['name'];
-                            price = data['price'];
-                            desc = data['description'];
-                            Navigator.pushNamed(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(data['name']),
+                        subtitle: Text(data['price'] + "원"),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              name = data['name'];
+                              price = data['price'];
+                              desc = data['description'];
+                              writer = data['writer'];
+                              popular = data['popular'];
+
+                              Navigator.pushNamed(
                                 context,
                                 '/detail',
                                 arguments: ProductArguments(
-                                    "$name",
-                                    "$price",
-                                    "$desc"
-                                ),
-                            );
-                          },
-                          child: const Text(
-                            "more",
-                            style: TextStyle(color: Colors.blue),
+                                    "$name", "$price", "$desc", "$writer", popular),
+                              );
+                            },
+                            child: const Text(
+                              "more",
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.resolveWith(
+                                      (color) => Colors.white),
+                              elevation: MaterialStateProperty.resolveWith(
+                                  (elevation) => 0.0),
+                            ),
                           ),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.resolveWith((color) => Colors.white),
-                            elevation: MaterialStateProperty.resolveWith((elevation) => 0.0),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             );
@@ -286,10 +264,11 @@ class ProductArguments {
   final String name;
   final String price;
   final String description;
+  final String writer;
+  final int popular;
 
-  ProductArguments(this.name, this.price, this.description);
+  ProductArguments(this.name, this.price, this.description, this.writer, this.popular);
 }
-
 
 //for delievering arguments through navigator but it does not work in that Page....
 class favoriteNum_to_name {

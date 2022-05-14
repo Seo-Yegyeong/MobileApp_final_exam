@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shrine/util/size.dart';
 import 'dart:io';
@@ -111,20 +112,33 @@ class _CreatePageState extends State<CreatePage> {
                 //아래는 참고링크야.
                 //https://web.archive.org/web/20220213102213/https://firebase.flutter.dev/docs/firestore/usage/
                 if(myFormKey.currentState!.validate()){
-                  final productsRef = FirebaseFirestore.instance.collection('product').withConverter<Product>(
-                    fromFirestore: (snapshot, _) => Product.fromJson(snapshot.data()!),
-                    toFirestore: (product, _) => product.toJson(),
-                  );
+                  // final productsRef = FirebaseFirestore.instance.collection('product').withConverter<Product>(
+                  //   fromFirestore: (snapshot, _) => Product.fromJson(snapshot.data()!),
+                  //   toFirestore: (product, _) => product.toJson(),
+                  // );
 
                   //List<QueryDocumentSnapshot<Product>> products = await productsRef.get().then((snapshot) => snapshot.docs);
-
-                  await productsRef.add(
-                    Product(
-                      name: nameCont.text,
-                      price: priceCont.text,
-                      description: descCont.text,
-                    )
+                  User? user = FirebaseAuth.instance.currentUser;
+                  CollectionReference products = FirebaseFirestore.instance.collection('product');
+                  int initial = 0;
+                  Product productModel = Product(
+                    name: nameCont.text,
+                    price: priceCont.text,
+                    description: descCont.text,
+                    writer: user!.uid,
+                    popular: initial,
                   );
+                  String n = nameCont.text;
+                  products.doc(n).set(productModel.toJson());
+
+
+                  // await productsRef.add(
+                  //   Product(
+                  //     name: nameCont.text,
+                  //     price: priceCont.text,
+                  //     description: descCont.text,
+                  //   )
+                  // );
 
                   Navigator.pop(context);
                 }
@@ -150,8 +164,6 @@ class _CreatePageState extends State<CreatePage> {
               Column(
                 children: [
                   Container(
-                    // height: getScreenHeight(context)*0.4,
-                    // width: getScreenWidth(context),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -204,7 +216,6 @@ class _CreatePageState extends State<CreatePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextFormField(
-                            //initialValue: "Product Name",
                             decoration: InputDecoration(
                               hintText: "Product Name"
                             ),
@@ -217,7 +228,6 @@ class _CreatePageState extends State<CreatePage> {
                             },
                           ),
                           TextFormField(
-                            //initialValue: "Price",
                             decoration: InputDecoration(
                                 hintText: "Price"
                             ),
@@ -230,7 +240,6 @@ class _CreatePageState extends State<CreatePage> {
                             },
                           ),
                           TextFormField(
-                            //initialValue: "Description",
                             decoration: InputDecoration(
                                 hintText: "Description"
                             ),

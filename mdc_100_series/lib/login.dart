@@ -27,6 +27,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
+  //참고 링크
+  //https://web.archive.org/web/20220116095507/https://firebase.flutter.dev/docs/auth/usage/
   CollectionReference database = FirebaseFirestore.instance.collection('user');
   late QuerySnapshot querySnapshot;
 
@@ -96,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
 
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (context) => const HomePage(),
+                            builder: (context) => const Authentication(),
                           ),
                         );
                       }
@@ -127,36 +129,14 @@ class _LoginPageState extends State<LoginPage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       final UserCredential userCredential =
-                      await signInWithGoogle();
+                      await FirebaseAuth.instance.signInAnonymously();
 
                       User? user = userCredential.user;
-
-                      if (user != null) {
-                        int i;
-                        querySnapshot = await database.get();
-
-                        for (i = 0; i < querySnapshot.docs.length; i++) {
-                          var a = querySnapshot.docs[i];
-
-                          if (a.get('uid') == user.uid) {
-                            break;
-                          }
-                        }
-
-                        if (i == (querySnapshot.docs.length)) {
-                          database.doc(user.uid).set({
-                            'email': user.email.toString(),
-                            'name': user.displayName.toString(),
-                            'uid': user.uid,
-                          });
-                        }
-
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (context) => const HomePage(),
                           ),
                         );
-                      }
                     },
                     child: Row(
                       children: [
@@ -187,6 +167,25 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class Authentication extends StatelessWidget {
+  const Authentication({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+        if(!snapshot.hasData){
+          return LoginPage();
+        }
+        else {
+          return HomePage();
+        }
+      },
     );
   }
 }
